@@ -21,9 +21,37 @@ interface ChargeStatusResponse {
   charge?: Record<string, unknown> | null;
 }
 
-function validateCPF(cpf: string): boolean {
-  const cleaned = cpf.replace(/\D/g, "");
-  return cleaned.length === 11;
+function validateTaxID(taxID: string): boolean {
+  const cleaned = taxID.replace(/\D/g, "");
+  return cleaned.length === 11 || cleaned.length === 14;
+}
+
+function formatTaxID(taxID: string): string {
+  const cleaned = taxID.replace(/\D/g, "");
+  
+  if (cleaned.length === 11) {
+    // CPF: XXX.XXX.XXX-XX
+    return cleaned
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+  
+  if (cleaned.length === 14) {
+    // CNPJ: XX.XXX.XXX/XXXX-XX
+    return cleaned
+      .replace(/(\d{2})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1/$2")
+      .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+  }
+  
+  return cleaned;
+}
+
+function getTaxIDType(taxID: string): "CPF" | "CNPJ" {
+  const cleaned = taxID.replace(/\D/g, "");
+  return cleaned.length === 11 ? "CPF" : "CNPJ";
 }
 
 function formatDuration(totalSeconds: number): string {
@@ -136,12 +164,12 @@ export default function Home() {
           console.log("✅ Cobrança Confirmada:", data.charge);
           setChargeData(data.charge);
           
-          const returnedCPF = (data.charge as Record<string, unknown>)?.customer?.taxID?.taxID;
-          const inputCPF = cpf.replace(/\D/g, "");
+          const returnedTaxID = (data.charge as Record<string, unknown>)?.customer?.taxID?.taxID;
+          const inputTaxID = cpf.replace(/\D/g, "");
           
-          if (returnedCPF && inputCPF && returnedCPF !== inputCPF) {
+          if (returnedTaxID && inputTaxID && returnedTaxID !== inputTaxID) {
             setCpfMismatch(true);
-            console.warn("⚠️ CPF Mismatch - Informado:", inputCPF, "Retornado:", returnedCPF);
+            console.warn("⚠️ Documento Mismatch - Informado:", inputTaxID, "Retornado:", returnedTaxID);
           }
           
           setStep("validated");
@@ -186,8 +214,8 @@ export default function Home() {
   const handleSubmitCPF = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!validateCPF(cpf)) {
-      setError("CPF inválido. Digite 11 dígitos.");
+    if (!validateTaxID(cpf)) {
+      setError("Documento inválido. Digite CPF (11 dígitos) ou CNPJ (14 dígitos).");
       return;
     }
 
@@ -236,8 +264,8 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-full bg-[radial-gradient(circle_at_top,_rgba(3,214,157,0.16),_transparent_30%),linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] text-woovi-dark">
-      <main className="mx-auto flex min-h-full w-full max-w-5xl items-center px-6 py-10 sm:px-10 lg:px-12">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(3,214,157,0.16),_transparent_30%),linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] text-woovi-dark">
+      <main className="mx-auto flex min-h-screen w-full max-w-5xl items-center px-6 py-10 sm:px-10 lg:px-12">
         <section className="grid w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(29,41,57,0.08)] lg:grid-cols-[1.05fr_0.95fr]">
           <div className="relative flex flex-col justify-between gap-10 border-b border-slate-200 px-8 py-10 sm:px-10 lg:border-b-0 lg:border-r">
             <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-woovi-green/25 blur-3xl" />
@@ -249,7 +277,7 @@ export default function Home() {
                 Antes de continuar, precisamos validar se você é maior de 18 anos.
               </h1>
               <p className="max-w-xl text-base leading-7 text-woovi-muted sm:text-lg">
-                Informe seu CPF para gerar um PIX de validação. O valor será
+                Informe seu CPF ou CNPJ para gerar um PIX de validação. O valor será
                 debitado como confirmação.
               </p>
             </div>
@@ -273,7 +301,7 @@ export default function Home() {
                 }`}
               >
                 <p className="text-sm font-medium text-woovi-muted">Passo 2</p>
-                <p className="mt-1 text-sm text-woovi-dark">CPF</p>
+                <p className="mt-1 text-sm text-woovi-dark">Documento</p>
               </div>
               <div
                 className={`rounded-2xl border p-4 ${
@@ -318,21 +346,17 @@ export default function Home() {
                 <form onSubmit={handleSubmitCPF} className="space-y-4">
                   <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6">
                     <label className="block text-sm font-medium uppercase tracking-[0.2em] text-woovi-muted">
-                      Seu CPF
+                      CPF ou CNPJ
                     </label>
                     <input
                       type="text"
                       inputMode="numeric"
-                      placeholder="000.000.000-00"
-                      value={cpf
-                        .replace(/\D/g, "")
-                        .replace(/(\d{3})(\d)/, "$1.$2")
-                        .replace(/(\d{3})(\d)/, "$1.$2")
-                        .replace(/(\d{3})(\d{1,2})$/, "$1-$2")}
+                      placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                      value={formatTaxID(cpf)}
                       onChange={(e) =>
                         setCpf(e.target.value.replace(/\D/g, ""))
                       }
-                      maxLength={14}
+                      maxLength={18}
                       className="mt-3 w-full rounded-lg border border-slate-300 px-4 py-3 text-lg font-semibold focus:border-woovi-dark focus:outline-none"
                     />
                     {error && (
@@ -342,7 +366,7 @@ export default function Home() {
 
                   <button
                     type="submit"
-                    disabled={loading || !validateCPF(cpf)}
+                    disabled={loading || !validateTaxID(cpf)}
                     className="inline-flex h-14 w-full items-center justify-center rounded-full bg-woovi-green px-6 text-sm font-semibold text-white transition-transform disabled:cursor-not-allowed disabled:opacity-50 hover:disabled:translate-y-0 hover:-translate-y-0.5 hover:brightness-95"
                   >
                     {loading ? "Gerando PIX..." : "Gerar PIX de Validação"}
@@ -407,16 +431,16 @@ export default function Home() {
             {step === "validated" && (
               <>
                 {cpfMismatch && (
-                  <div className="rounded-[1.75rem] border border-amber-200 bg-amber-50 p-6">
-                    <p className="text-sm font-medium uppercase tracking-[0.2em] text-amber-700">
+                  <div className="rounded-[1.75rem] border border-woovi-dark/20 bg-woovi-green/10 p-6">
+                    <p className="text-sm font-medium uppercase tracking-[0.2em] text-woovi-dark">
                       ⚠️ Aviso
                     </p>
-                    <p className="mt-3 text-sm text-amber-900">
-                      O CPF retornado pela cobrança é diferente do informado no início.
+                    <p className="mt-3 text-sm text-woovi-muted">
+                      O documento retornado pela cobrança é diferente do informado no início.
                     </p>
                   </div>
                 )}
-                <div className={`rounded-[1.75rem] border p-6 ${cpfMismatch ? "border-amber-200 bg-amber-50 mt-4" : "border-woovi-green/30 bg-woovi-green/10"}`}>
+                <div className={`rounded-[1.75rem] border p-6 ${cpfMismatch ? "border-woovi-dark/20 bg-woovi-green/10 mt-4" : "border-woovi-green/30 bg-woovi-green/10"}`}>
                   <p className="text-sm font-medium uppercase tracking-[0.2em] text-woovi-dark">
                     Pagamento confirmado
                   </p>
@@ -428,7 +452,7 @@ export default function Home() {
                   </p>
                   {chargeData?.customer && (
                     <p className="mt-4 text-sm font-semibold text-woovi-dark">
-                      CPF do Pagante:{" "}
+                      Documento do Pagante:{" "}
                       <span className="font-mono text-xs">
                         {(chargeData.customer as Record<string, unknown>)?.taxID?.taxID || "N/A"}
                       </span>
