@@ -448,6 +448,99 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Próximos passos */}
+      <section className="py-24 px-6 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16 space-y-4">
+            <span className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-woovi-green">
+              Roadmap
+            </span>
+            <h2 className="text-4xl font-bold">Próximos passos do projeto</h2>
+            <p className="text-woovi-muted text-lg max-w-2xl mx-auto">
+              Transformar o fluxo em um produto que qualquer plataforma pode integrar em minutos.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* SDK */}
+            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-woovi-dark rounded-2xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-woovi-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-woovi-muted">Em desenvolvimento</p>
+                  <h3 className="text-xl font-bold text-woovi-dark">SDK JavaScript / TypeScript</h3>
+                </div>
+              </div>
+
+              <p className="text-woovi-muted leading-relaxed">
+                Pacote NPM do <strong className="text-woovi-dark">One Cent Age Verify</strong> que encapsula todo o fluxo de validação etária — geração do Pix, polling de confirmação, consulta cadastral e cálculo de idade — em uma única chamada assíncrona.
+              </p>
+
+              <div className="rounded-xl bg-woovi-dark p-4 font-mono text-sm overflow-x-auto text-gray-300">
+                <p className="text-gray-500 text-xs mb-2"># instalação</p>
+                <p className="text-woovi-green">npm install @one-cent/age-verify</p>
+              </div>
+
+              <div className="rounded-xl bg-woovi-dark p-4 font-mono text-sm overflow-x-auto space-y-1 text-gray-300">
+                <p className="text-gray-500 text-xs mb-2"># uso</p>
+                <p><span className="text-purple-400">import</span> <span className="text-white">{"{ verifyAge }"}</span> <span className="text-purple-400">from</span> <span className="text-yellow-300">&apos;@one-cent/age-verify&apos;</span></p>
+                <p className="mt-2"><span className="text-purple-400">const</span> <span className="text-white">result</span> <span className="text-gray-400">=</span> <span className="text-purple-400">await</span> <span className="text-woovi-green">verifyAge</span><span className="text-white">({"{"}</span></p>
+                <p className="pl-4"><span className="text-blue-300">taxID</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;000.000.000-00&apos;</span><span className="text-gray-400">,</span></p>
+                <p className="pl-4"><span className="text-blue-300">apiKey</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;sua-chave-one-cent&apos;</span></p>
+                <p><span className="text-white">{"}"}</span>)<span className="text-gray-400">;</span></p>
+                <p className="mt-2"><span className="text-white">result</span><span className="text-gray-400">.</span><span className="text-blue-300">isAdult</span> <span className="text-gray-500">{"// true | false"}</span></p>
+                <p><span className="text-white">result</span><span className="text-gray-400">.</span><span className="text-blue-300">age</span> <span className="text-gray-500">{"// 35"}</span></p>
+              </div>
+            </div>
+
+            {/* Plugin via script */}
+            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-woovi-dark rounded-2xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-woovi-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-woovi-muted">Em desenvolvimento</p>
+                  <h3 className="text-xl font-bold text-woovi-dark">Plugin via {"<script>"}</h3>
+                </div>
+              </div>
+
+              <p className="text-woovi-muted leading-relaxed">
+                Para plataformas sem build pipeline — WordPress, Shopify, landing pages — o plugin do <strong className="text-woovi-dark">One Cent Age Verify</strong> injeta o modal de validação etária via <code className="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">window.OneCent</code> com uma única tag de script.
+              </p>
+
+              <div className="rounded-xl bg-woovi-dark p-4 font-mono text-sm overflow-x-auto space-y-1 text-gray-300">
+                <p className="text-gray-500 text-xs mb-2"># 1. inclua o script no {"<body>"}</p>
+                <p><span className="text-gray-400">{"<"}</span><span className="text-blue-300">script</span> <span className="text-blue-300">src</span><span className="text-gray-400">{"=\""}</span><span className="text-yellow-300">https://cdn.onecent.dev/v1/age-verify.js</span><span className="text-gray-400">{"\">"}</span> <span className="text-blue-300">async</span><span className="text-gray-400">{"</"}</span><span className="text-blue-300">script</span><span className="text-gray-400">{">"}</span></p>
+              </div>
+
+              <div className="rounded-xl bg-woovi-dark p-4 font-mono text-sm overflow-x-auto space-y-1 text-gray-300">
+                <p className="text-gray-500 text-xs mb-2"># 2. inicialize com sua chave</p>
+                <p><span className="text-purple-400">window</span>.<span className="text-woovi-green">OneCent</span>.<span className="text-blue-300">init</span>(<span className="text-white">{"{"}</span></p>
+                <p className="pl-4"><span className="text-blue-300">apiKey</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;sua-chave-one-cent&apos;</span></p>
+                <p><span className="text-white">{"}"}</span>)<span className="text-gray-400">;</span></p>
+              </div>
+
+              <div className="rounded-xl bg-woovi-dark p-4 font-mono text-sm overflow-x-auto space-y-1 text-gray-300">
+                <p className="text-gray-500 text-xs mb-2"># 3. dispare e escute o resultado</p>
+                <p><span className="text-purple-400">window</span>.<span className="text-woovi-green">OneCent</span>.<span className="text-blue-300">verify</span>(<span className="text-white">{"{"}</span></p>
+                <p className="pl-4"><span className="text-blue-300">taxID</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;000.000.000-00&apos;</span><span className="text-gray-400">,</span></p>
+                <p className="pl-4"><span className="text-blue-300">onSuccess</span><span className="text-gray-400">:</span> (result) <span className="text-gray-400">={">"}</span> <span className="text-white">{"{"}</span></p>
+                <p className="pl-8"><span className="text-gray-500">{"// result.isAdult → true | false"}</span></p>
+                <p className="pl-4"><span className="text-white">{"}"}</span></p>
+                <p><span className="text-white">{"}"}</span>)<span className="text-gray-400">;</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-24 px-6 bg-woovi-dark">
         <div className="max-w-3xl mx-auto text-center space-y-8">
