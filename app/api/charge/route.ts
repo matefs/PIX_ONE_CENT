@@ -3,11 +3,11 @@ import { getWooviAuth, WOOVI_API_URL } from "./woovi";
 
 export async function POST(request: NextRequest) {
   try {
-    const { cpf } = await request.json();
+    const { taxID } = await request.json();
 
-    if (!cpf) {
+    if (!taxID) {
       return NextResponse.json(
-        { error: "CPF é obrigatório" },
+        { error: "CPF ou CNPJ é obrigatório" },
         { status: 400 }
       );
     }
@@ -26,9 +26,10 @@ export async function POST(request: NextRequest) {
       value: 1,
       type: "DYNAMIC",
       comment: "Validação de idade",
+      ensureSameTaxID: true,
       customer: {
         name: "Cliente Validação",
-        taxID: cpf.replace(/\D/g, ""),
+        taxID: taxID.replace(/\D/g, ""),
         email: "validacao@pixoneent.com",
         phone: "5511999999999",
       },

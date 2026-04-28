@@ -162,7 +162,7 @@ export default function Home() {
 
         if (data.status === "COMPLETED") {
           console.log("✅ Cobrança Confirmada:", data.charge);
-          setChargeData(data.charge);
+          setChargeData(data.charge ?? null);
           
           const returnedTaxID = (data.charge as Record<string, unknown>)?.customer?.taxID?.taxID;
           const inputTaxID = cpf.replace(/\D/g, "");
@@ -226,7 +226,7 @@ export default function Home() {
       const response = await fetch("/api/charge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cpf }),
+        body: JSON.stringify({ taxID: cpf }),
       });
 
       if (!response.ok) {
@@ -346,7 +346,7 @@ export default function Home() {
                 <form onSubmit={handleSubmitCPF} className="space-y-4">
                   <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6">
                     <label className="block text-sm font-medium uppercase tracking-[0.2em] text-woovi-muted">
-                      CPF ou CNPJ
+                      {validateTaxID(cpf) ? getTaxIDType(cpf) : "CPF ou CNPJ"}
                     </label>
                     <input
                       type="text"
@@ -450,18 +450,6 @@ export default function Home() {
                   <p className="mt-3 text-sm leading-6 text-woovi-muted">
                     Você já pode seguir para a próxima tela.
                   </p>
-                  {chargeData?.payer ? (
-                    <p className="mt-4 text-sm font-semibold text-woovi-dark">
-                      Documento do Pagante:{" "}
-                      <span className="font-mono text-xs">
-                        {String(chargeData.payer)}
-                      </span>
-                    </p>
-                  ) : (
-                    <p className="mt-4 text-sm font-semibold text-woovi-dark">
-                      <span className="text-red-600">Dados do pagante indisponíveis</span>
-                    </p>
-                  )}
                 </div>
 
                 <button
