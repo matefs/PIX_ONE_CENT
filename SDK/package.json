@@ -1,0 +1,26 @@
+{
+  "name": "@one-cent/age-verify",
+  "version": "0.1.0",
+  "description": "Age verification SDK using Pix R$ 0.01 as identity proof",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run"
+  },
+  "keywords": ["pix", "age-verification", "kyc", "brazil", "eca"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5",
+    "vitest": "^4"
+  }
+}

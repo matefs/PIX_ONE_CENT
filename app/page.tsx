@@ -487,13 +487,21 @@ export default function LandingPage() {
 
               <div className="rounded-xl bg-woovi-dark p-4 font-mono text-sm overflow-x-auto space-y-1 text-gray-300">
                 <p className="text-gray-500 text-xs mb-2"># uso</p>
-                <p><span className="text-purple-400">import</span> <span className="text-white">{"{ verifyAge }"}</span> <span className="text-purple-400">from</span> <span className="text-yellow-300">&apos;@one-cent/age-verify&apos;</span></p>
-                <p className="mt-2"><span className="text-purple-400">const</span> <span className="text-white">result</span> <span className="text-gray-400">=</span> <span className="text-purple-400">await</span> <span className="text-woovi-green">verifyAge</span><span className="text-white">({"{"}</span></p>
+                <p><span className="text-purple-400">import</span> <span className="text-white">{"{ verifyAge, WooviProvider, BigBoostProvider }"}</span> <span className="text-purple-400">from</span> <span className="text-yellow-300">&apos;@one-cent/age-verify&apos;</span></p>
+                <p className="mt-2"><span className="text-purple-400">const</span> <span className="text-white">result</span> <span className="text-gray-400">=</span> <span className="text-purple-400">await</span> <span className="text-woovi-green">verifyAge</span><span className="text-gray-400">{"({"}</span></p>
                 <p className="pl-4"><span className="text-blue-300">taxID</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;000.000.000-00&apos;</span><span className="text-gray-400">,</span></p>
-                <p className="pl-4"><span className="text-blue-300">apiKey</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;sua-chave-one-cent&apos;</span></p>
-                <p><span className="text-white">{"}"}</span>)<span className="text-gray-400">;</span></p>
-                <p className="mt-2"><span className="text-white">result</span><span className="text-gray-400">.</span><span className="text-blue-300">isAdult</span> <span className="text-gray-500">{"// true | false"}</span></p>
-                <p><span className="text-white">result</span><span className="text-gray-400">.</span><span className="text-blue-300">age</span> <span className="text-gray-500">{"// 35"}</span></p>
+                <p className="pl-4"><span className="text-blue-300">chargeProvider</span><span className="text-gray-400">:</span> <span className="text-purple-400">new</span> <span className="text-woovi-green">WooviProvider</span><span className="text-gray-400">{"({"}</span></p>
+                <p className="pl-8"><span className="text-blue-300">apiURL</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;https://api.woovi.com/api/v1/charge&apos;</span><span className="text-gray-400">,</span></p>
+                <p className="pl-8"><span className="text-blue-300">auth</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;sua-chave-woovi&apos;</span><span className="text-gray-400">,</span></p>
+                <p className="pl-4"><span className="text-gray-400">{"}),"}</span></p>
+                <p className="pl-4"><span className="text-blue-300">ageProvider</span><span className="text-gray-400">:</span> <span className="text-purple-400">new</span> <span className="text-woovi-green">BigBoostProvider</span><span className="text-gray-400">{"({"}</span></p>
+                <p className="pl-8"><span className="text-blue-300">accessToken</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;sua-chave-bigboost&apos;</span><span className="text-gray-400">,</span></p>
+                <p className="pl-8"><span className="text-blue-300">tokenId</span><span className="text-gray-400">:</span> <span className="text-yellow-300">&apos;seu-token-id-bigboost&apos;</span><span className="text-gray-400">,</span></p>
+                <p className="pl-4"><span className="text-gray-400">{"}),"}</span></p>
+                <p className="pl-4"><span className="text-blue-300">onQRCode</span><span className="text-gray-400">:</span> <span className="text-white">(data)</span> <span className="text-gray-400">={">"}</span> <span className="text-woovi-green">renderQR</span><span className="text-gray-400">(</span>data<span className="text-gray-400">.</span><span className="text-blue-300">brCode</span><span className="text-gray-400">),</span></p>
+                <p><span className="text-gray-400">{"});"}</span></p>
+                <p className="mt-2"><span className="text-white">result</span><span className="text-gray-400">.</span><span className="text-blue-300">approved</span> <span className="text-gray-500">{"// true | false"}</span></p>
+                <p><span className="text-white">result</span><span className="text-gray-400">.</span><span className="text-blue-300">age</span>      <span className="text-gray-500">{"// 35"}</span></p>
               </div>
             </div>
 
