@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       brCode: data.charge.brCode,
       qrCodeImage: data.charge.qrCodeImage,
+      correlationID: data.charge.correlationID,
       transactionID: data.charge.transactionID,
       value: data.charge.value,
       expiresIn: data.charge.expiresIn,
