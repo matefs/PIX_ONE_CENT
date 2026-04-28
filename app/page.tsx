@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 import QRCode from "qrcode";
 
-type Step = "initial" | "cpf" | "loading" | "success" | "error";
+type Step = "initial" | "cpf" | "loading" | "payment" | "validated" | "error";
 
 interface ChargeResponse {
   brCode: string;
@@ -14,9 +14,28 @@ interface ChargeResponse {
   expiresIn: number;
 }
 
+interface ChargeStatusResponse {
+  status: "ACTIVE" | "COMPLETED" | "EXPIRED" | "FAILED" | "UNKNOWN";
+  transactionID: string;
+  expiresDate: string | null;
+  charge?: Record<string, unknown> | null;
+}
+
 function validateCPF(cpf: string): boolean {
   const cleaned = cpf.replace(/\D/g, "");
   return cleaned.length === 11;
+}
+
+function formatDuration(totalSeconds: number): string {
+  const safeSeconds = Math.max(0, totalSeconds);
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const seconds = safeSeconds % 60;
+
+  return `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(
+    2,
+    "0"
+  )}m ${String(seconds).padStart(2, "0")}s`;
 }
 
 export default function Home() {
@@ -24,6 +43,12 @@ export default function Home() {
   const [cpf, setCpf] = useState("");
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [brCode, setBrCode] = useState("");
+  const [transactionID, setTransactionID] = useState("");
+  const [expiresAt, setExpiresAt] = useState<number | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [chargeStatus, setChargeStatus] = useState<ChargeStatusResponse["status"]>("ACTIVE");
+  const [chargeData, setChargeData] = useState<Record<string, unknown> | null>(null);
+  const [cpfMismatch, setCpfMismatch] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -59,6 +84,100 @@ export default function Home() {
     };
   }, [brCode]);
 
+  useEffect(() => {
+    if (step !== "payment" || !expiresAt) {
+      return;
+    }
+
+    const updateCountdown = () => {
+      const remaining = Math.max(
+        0,
+        Math.ceil((expiresAt - Date.now()) / 1000)
+      );
+
+      setSecondsLeft(remaining);
+    };
+
+    updateCountdown();
+
+    const countdownInterval = setInterval(updateCountdown, 1000);
+
+    return () => {
+      clearInterval(countdownInterval);
+    };
+  }, [expiresAt, step]);
+
+  useEffect(() => {
+    if (step !== "payment" || !transactionID) {
+      return;
+    }
+
+    let active = true;
+
+    const checkChargeStatus = async () => {
+      try {
+        const response = await fetch(`/api/charge/${encodeURIComponent(transactionID)}`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data: ChargeStatusResponse = await response.json();
+
+        if (!active) {
+          return;
+        }
+
+        setChargeStatus(data.status);
+
+        if (data.status === "COMPLETED") {
+          console.log("✅ Cobrança Confirmada:", data.charge);
+          setChargeData(data.charge);
+          
+          const returnedCPF = (data.charge as Record<string, unknown>)?.customer?.taxID?.taxID;
+          const inputCPF = cpf.replace(/\D/g, "");
+          
+          if (returnedCPF && inputCPF && returnedCPF !== inputCPF) {
+            setCpfMismatch(true);
+            console.warn("⚠️ CPF Mismatch - Informado:", inputCPF, "Retornado:", returnedCPF);
+          }
+          
+          setStep("validated");
+          return;
+        }
+
+        if (data.status === "EXPIRED") {
+          setError("Essa cobrança expirou. Gere uma nova validação.");
+          setStep("error");
+          return;
+        }
+
+        if (data.status === "FAILED") {
+          setError("A cobrança não foi concluída. Tente novamente.");
+          setStep("error");
+          return;
+        }
+
+        if (data.status === "UNKNOWN") {
+          setError("Não foi possível confirmar o status da cobrança.");
+          setStep("error");
+        }
+      } catch {
+        return;
+      }
+    };
+
+    void checkChargeStatus();
+    const pollingInterval = setInterval(checkChargeStatus, 5000);
+
+    return () => {
+      active = false;
+      clearInterval(pollingInterval);
+    };
+  }, [step, transactionID]);
+
   const handleStartValidation = () => {
     setStep("cpf");
     setError("");
@@ -89,7 +208,11 @@ export default function Home() {
 
       const data: ChargeResponse = await response.json();
       setBrCode(data.brCode);
-      setStep("success");
+      setTransactionID(data.transactionID);
+      setExpiresAt(Date.now() + data.expiresIn * 1000);
+      setSecondsLeft(data.expiresIn);
+      setChargeStatus("ACTIVE");
+      setStep("payment");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro desconhecido");
       setStep("error");
@@ -102,6 +225,12 @@ export default function Home() {
     setStep("initial");
     setCpf("");
     setBrCode("");
+    setTransactionID("");
+    setExpiresAt(null);
+    setSecondsLeft(0);
+    setChargeStatus("ACTIVE");
+    setChargeData(null);
+    setCpfMismatch(false);
     setQrCodeDataUrl("");
     setError("");
   };
@@ -148,7 +277,7 @@ export default function Home() {
               </div>
               <div
                 className={`rounded-2xl border p-4 ${
-                  step === "success"
+                  ["payment", "validated"].includes(step)
                     ? "border-woovi-green/30 bg-woovi-green/10"
                     : "border-slate-200 bg-slate-50"
                 }`}
@@ -233,17 +362,19 @@ export default function Home() {
               </div>
             )}
 
-            {step === "success" && (
+            {step === "payment" && (
               <>
                 <div className="rounded-[1.75rem] border border-woovi-green/30 bg-woovi-green/10 p-6">
                   <p className="text-sm font-medium uppercase tracking-[0.2em] text-woovi-dark">
-                    Validação gerada com sucesso
+                    Prazo de Pagamento
                   </p>
-                  <p className="mt-3 text-xl font-semibold text-woovi-dark">
-                    Escaneie o QR code ou copie o código PIX.
+                  <p className="mt-3 text-4xl font-semibold tracking-tight text-woovi-dark sm:text-5xl">
+                    {formatDuration(secondsLeft)}
                   </p>
                   <p className="mt-3 text-sm leading-6 text-woovi-muted">
-                    Valor: R$ 0,01. Complete o pagamento para validar sua idade.
+                    {chargeStatus === "ACTIVE"
+                      ? "Aguardando pagamento. A tela avança automaticamente quando a cobrança for concluída."
+                      : "Atualizando status da cobrança..."}
                   </p>
                 </div>
 
@@ -270,13 +401,47 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
+              </>
+            )}
+
+            {step === "validated" && (
+              <>
+                {cpfMismatch && (
+                  <div className="rounded-[1.75rem] border border-amber-200 bg-amber-50 p-6">
+                    <p className="text-sm font-medium uppercase tracking-[0.2em] text-amber-700">
+                      ⚠️ Aviso
+                    </p>
+                    <p className="mt-3 text-sm text-amber-900">
+                      O CPF retornado pela cobrança é diferente do informado no início.
+                    </p>
+                  </div>
+                )}
+                <div className={`rounded-[1.75rem] border p-6 ${cpfMismatch ? "border-amber-200 bg-amber-50 mt-4" : "border-woovi-green/30 bg-woovi-green/10"}`}>
+                  <p className="text-sm font-medium uppercase tracking-[0.2em] text-woovi-dark">
+                    Pagamento confirmado
+                  </p>
+                  <p className="mt-3 text-xl font-semibold text-woovi-dark">
+                    A validação foi concluída com sucesso.
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-woovi-muted">
+                    Você já pode seguir para a próxima tela.
+                  </p>
+                  {chargeData?.customer && (
+                    <p className="mt-4 text-sm font-semibold text-woovi-dark">
+                      CPF do Pagante:{" "}
+                      <span className="font-mono text-xs">
+                        {(chargeData.customer as Record<string, unknown>)?.taxID?.taxID || "N/A"}
+                      </span>
+                    </p>
+                  )}
+                </div>
 
                 <button
                   type="button"
                   onClick={handleReset}
                   className="inline-flex h-12 items-center justify-center rounded-full border border-woovi-dark px-6 text-sm font-semibold text-woovi-dark transition-colors hover:bg-woovi-dark hover:text-white"
                 >
-                  Voltar ao início
+                  Validar novamente
                 </button>
               </>
             )}

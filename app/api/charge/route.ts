@@ -1,29 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-
-const WOOVI_API_URL = "https://api.woovi-sandbox.com/api/v1/charge";
-
-function getWooviAuth(): string {
-  const envValue = process.env.WOOVI_AUTH?.trim();
-
-  if (envValue) {
-    return envValue;
-  }
-
-  if (process.env.NODE_ENV !== "development") {
-    return "";
-  }
-
-  try {
-    const envFile = readFileSync(join(process.cwd(), ".env"), "utf8");
-    const match = envFile.match(/^WOOVI_AUTH\s*=\s*(.+)$/m);
-
-    return match?.[1]?.trim().replace(/^['"]|['"]$/g, "") || "";
-  } catch {
-    return "";
-  }
-}
+import { getWooviAuth, WOOVI_API_URL } from "./woovi";
 
 export async function POST(request: NextRequest) {
   try {
