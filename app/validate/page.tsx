@@ -66,6 +66,7 @@ function formatDuration(totalSeconds: number): string {
   )}m ${String(seconds).padStart(2, "0")}s`;
 }
 
+
 export default function Home() {
   const [step, setStep] = useState<Step>("initial");
   const [cpf, setCpf] = useState("");
@@ -76,7 +77,6 @@ export default function Home() {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [chargeStatus, setChargeStatus] = useState<ChargeStatusResponse["status"]>("ACTIVE");
   const [chargeData, setChargeData] = useState<Record<string, unknown> | null>(null);
-  const [cpfMismatch, setCpfMismatch] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -164,14 +164,6 @@ export default function Home() {
           console.log("✅ Cobrança Confirmada:", data.charge);
           setChargeData(data.charge ?? null);
           
-          const returnedTaxID = (data.charge as Record<string, unknown>)?.customer?.taxID?.taxID;
-          const inputTaxID = cpf.replace(/\D/g, "");
-          
-          if (returnedTaxID && inputTaxID && returnedTaxID !== inputTaxID) {
-            setCpfMismatch(true);
-            console.warn("⚠️ Documento Mismatch - Informado:", inputTaxID, "Retornado:", returnedTaxID);
-          }
-          
           setStep("validated");
           return;
         }
@@ -258,7 +250,6 @@ export default function Home() {
     setSecondsLeft(0);
     setChargeStatus("ACTIVE");
     setChargeData(null);
-    setCpfMismatch(false);
     setQrCodeDataUrl("");
     setError("");
   };
@@ -430,17 +421,7 @@ export default function Home() {
 
             {step === "validated" && (
               <>
-                {cpfMismatch && (
-                  <div className="rounded-[1.75rem] border border-woovi-dark/20 bg-woovi-green/10 p-6">
-                    <p className="text-sm font-medium uppercase tracking-[0.2em] text-woovi-dark">
-                      ⚠️ Aviso
-                    </p>
-                    <p className="mt-3 text-sm text-woovi-muted">
-                      O documento retornado pela cobrança é diferente do informado no início.
-                    </p>
-                  </div>
-                )}
-                <div className={`rounded-[1.75rem] border p-6 ${cpfMismatch ? "border-woovi-dark/20 bg-woovi-green/10 mt-4" : "border-woovi-green/30 bg-woovi-green/10"}`}>
+                <div className="rounded-[1.75rem] border border-woovi-green/30 bg-woovi-green/10 p-6">
                   <p className="text-sm font-medium uppercase tracking-[0.2em] text-woovi-dark">
                     Pagamento confirmado
                   </p>
