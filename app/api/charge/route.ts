@@ -1,7 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const WOOVI_API_URL = "https://api.woovi-sandbox.com/api/v1/charge";
-const WOOVI_AUTH = process.env.WOOVI_AUTH || "";
+
+function getWooviAuth(): string {
+  const envValue = process.env.WOOVI_AUTH?.trim();
+
+  if (envValue) {
+    return envValue;
+  }
+
+  if (process.env.NODE_ENV !== "development") {
+    return "";
+  }
+
+  try {
+    const envFile = readFileSync(join(process.cwd(), ".env"), "utf8");
+    const match = envFile.match(/^WOOVI_AUTH\s*=\s*(.+)$/m);
+
+    return match?.[1]?.trim().replace(/^['"]|['"]$/g, "") || "";
+  } catch {
+    return "";
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +36,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!WOOVI_AUTH) {
+    const wooviAuth = getWooviAuth();
+
+    if (!wooviAuth) {
       return NextResponse.json(
         { error: "Credenciais Woovi não configuradas" },
         { status: 500 }
@@ -37,7 +61,7 @@ export async function POST(request: NextRequest) {
     const response = await fetch(`${WOOVI_API_URL}?return_existing=true`, {
       method: "POST",
       headers: {
-        Authorization: WOOVI_AUTH,
+        Authorization: wooviAuth,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
