@@ -22,10 +22,18 @@ Validação de maioridade usando um Pix de R$ 0,01 como prova de identidade banc
 ## Variáveis de ambiente
 
 ```env
+# Woovi
 WOOVI_AUTH=sua_chave_base64_aqui
+WOOVI_API_URL=https://api.woovi-sandbox.com/api/v1/charge
+
+# BigBoost (BigDataCorp)
+BIGBOOST_ACCESS_TOKEN=seu_access_token
+BIGBOOST_TOKEN_ID=seu_token_id
 ```
 
-A chave pode ser obtida no painel da Woovi em **Configurações → API**.
+- `WOOVI_AUTH` — obtida no painel da Woovi em **Configurações → API** (formato `ClientId:ClientSecret` em base64)
+- `WOOVI_API_URL` — use a URL sandbox para testes; troque pela URL de produção para ir ao ar
+- `BIGBOOST_ACCESS_TOKEN` e `BIGBOOST_TOKEN_ID` — obtidas em [plataforma.bigdatacorp.com.br](https://plataforma.bigdatacorp.com.br); usadas para consultar o dataset `basic_data` e obter data de nascimento pelo CPF
 
 ## Rodando localmente
 
