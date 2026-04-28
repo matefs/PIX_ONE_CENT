@@ -45,3 +45,28 @@ Isso mata a necessidade de você validar o payer manualmente no seu backend via 
 Fluxo: Pedir cpf/cnpj ->  criar uma charge na woovi -> gerar qrcode e apresentar na tela -> concluir pagamento ( pelo sandbox por enquanto ) -> verificar se o cpf/cnpj do pagante é o mesmo do customer (cliente que gerou o qrcode) -> consultar dados do pagante pelo bigboost  -> validar idade
 
 
+
+# [ ] SDK 
+```
+
+Verifyage = onecent.setup(
+chaves api woovi e bigboost
+) 
+
+
+Resposta = onecent.validate(
+cpf/CNPJ 
+) // create charge 
+
+
+while(true) { 
+
+resposta.status() // true or false  polling do client
+
+} 
+
+
+
+
+
+``` 
