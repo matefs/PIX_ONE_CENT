@@ -450,12 +450,16 @@ export default function Home() {
                   <p className="mt-3 text-sm leading-6 text-woovi-muted">
                     Você já pode seguir para a próxima tela.
                   </p>
-                  {chargeData?.customer && (
+                  {chargeData?.payer ? (
                     <p className="mt-4 text-sm font-semibold text-woovi-dark">
                       Documento do Pagante:{" "}
                       <span className="font-mono text-xs">
-                        {(chargeData.customer as Record<string, unknown>)?.taxID?.taxID || "N/A"}
+                        {String(chargeData.payer)}
                       </span>
+                    </p>
+                  ) : (
+                    <p className="mt-4 text-sm font-semibold text-woovi-dark">
+                      <span className="text-red-600">Dados do pagante indisponíveis</span>
                     </p>
                   )}
                 </div>
