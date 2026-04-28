@@ -72,3 +72,28 @@ app/
 ## Motivação
 
 A Lei nº 14.811/2024 (ECA Digital) obriga plataformas digitais a verificar maioridade, mas não define como. Autodeclaração não protege ninguém. Este projeto explora o Pix como mecanismo de KYC leve: o banco já verificou a identidade do titular — a plataforma apenas lê o resultado.
+
+# [ ] SDK 
+```
+
+Verifyage = onecent.setup(
+chaves api woovi e bigboost
+) 
+
+
+Resposta = onecent.validate(
+cpf/CNPJ 
+) // create charge 
+
+
+while(true) { 
+
+resposta.status() // true or false  polling do client
+
+} 
+
+
+
+
+
+``` 
