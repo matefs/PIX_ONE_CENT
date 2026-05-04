@@ -33,7 +33,7 @@ BIGBOOST_TOKEN_ID=seu_token_id
 
 - `WOOVI_AUTH` — obtida no painel da Woovi em **Configurações → API** (formato `ClientId:ClientSecret` em base64)
 - `WOOVI_API_URL` — use a URL sandbox para testes; troque pela URL de produção para ir ao ar
-- `BIGBOOST_ACCESS_TOKEN` e `BIGBOOST_TOKEN_ID` — obtidas em [plataforma.bigdatacorp.com.br](https://plataforma.bigdatacorp.com.br); usadas para consultar o dataset `basic_data` e obter data de nascimento pelo CPF
+- `BIGBOOST_ACCESS_TOKEN` e `BIGBOOST_TOKEN_ID` — obtidas em https://docs.bigdatacorp.com.br/plataforma/reference/pessoas-dados-cadastrais-basicos; usadas para consultar o dataset `basic_data` e obter data de nascimento pelo CPF
 
 ## Rodando localmente
 
